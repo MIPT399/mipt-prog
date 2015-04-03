@@ -7,10 +7,12 @@ listeners = []
 children = []
 pipes = {}
 
-def listener(cls, name):
-    listeners.append((name, cls))
-    pipes[name] = mp.Pipe()
-    return cls
+def listener(name):
+    def result(cls):
+        listeners.append((name, cls))
+        pipes[name] = mp.Pipe()
+        return cls
+    return result
 
 def loadAll():
     for i in range(len(listeners)):
