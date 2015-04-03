@@ -36,15 +36,15 @@ def main(args):
     #event loop
     while True:
         method, args, listener = EventQueue.get()
-        if name == 'join':
+        if method == 'join':
             answer(listener, join(args))
-        elif name == 'getField':
+        elif method == 'getField':
             answer(listener, getField())
-        elif name == 'moveUnit':
+        elif method == 'moveUnit':
             answer(listener, moveUnit(args))
-        elif name == 'attack':
+        elif method == 'attack':
             answer(listener, attack(args))
-        elif name == 'stop':
+        elif method == 'stop':
             stopAll()
             break
         else:
