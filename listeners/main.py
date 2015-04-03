@@ -17,7 +17,9 @@ def listener(name):
 def loadAll():
     for i in range(len(listeners)):
         name, cls = listeners[i]
-        obj = cls(EventQueue)
+        ppipe, cpipe = pipes[name]
+        pipes[name] = ppipe
+        obj = cls(EventQueue, cpipe)
         listeners[i] = (name, obj)
         p = mp.Process(target=obj.main)
         children.append(p)

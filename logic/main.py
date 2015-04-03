@@ -1,6 +1,7 @@
 import sys
 from structures.game import *
 import multiprocessing as mp 
+from . import *
 
 EventQueue = mp.Queue()
 
@@ -28,7 +29,7 @@ def attack(action):
     pass
 
 def answer(to, obj):
-    pipes[to][0].send(obj)
+    pipes[to].send(obj)
 
 def main(args):
     loadAll()
