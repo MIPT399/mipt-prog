@@ -1,6 +1,9 @@
 import sys
 from structures.game import *
 import multiprocessing as mp 
+
+EventQueue = mp.Queue()
+
 from listeners.main import loadAll, stopAll, pipes
 
 __all__ = ['main', 'EventQueue']
@@ -8,7 +11,6 @@ __all__ = ['main', 'EventQueue']
 Players = []
 
 __last_base_location = Point(x=0, y=0)
-EventQueue = mp.Queue()
 
 def genNewBase():
     return
