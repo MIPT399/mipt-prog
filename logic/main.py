@@ -1,7 +1,6 @@
 import sys
 from structures.game import *
 import multiprocessing as mp 
-from . import *
 
 EventQueue = mp.Queue()
 

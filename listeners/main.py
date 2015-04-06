@@ -1,6 +1,8 @@
 from logic.main import EventQueue
 import multiprocessing as mp
 
+from . import *
+
 __all__ = ['loadAll', 'stopAll', 'pipes']
 
 listeners = []
