@@ -82,18 +82,18 @@ class Response(Storeable):
 		return Point(jObj=loads(src))
 
 class Action(Storeable):
-	def __init__(self, *args, jObj=None, id='Invalid action', position=Point(x=0, y=0)):
+	def __init__(self, *args, jObj=None, owner='', id='Invalid action', position=Point(x=0, y=0)):
 		assert len(args) == 0, ' only named arguments'
 		if jObj == None:
-			self.id, self.position = id, position
+			self.owner, self.id, self.position = owner, id, position
 		else:
-			if 'id' not in jObj or 'position' not in jObj:
+			if 'owner' not in jObj or 'id' not in jObj or 'position' not in jObj:
 				raise ParseException('failed to parse action from ' + repr(jObj))
-			self.id, self.position = jObj['id'], Point(jObj=jObj['position'])
-		assert type(self.id) == str and type(self.position) == Point, 'incorrect types'
+			self.owner, self.id, self.position = jObj['owner'], jObj['id'], Point(jObj=jObj['position'])
+		assert type(self.owner) == str and type(self.id) == str and type(self.position) == Point, 'incorrect types'
 	
 	def store(self):
-		return '{"id":%s, "position":%s}' % (self.id, self.position.store())
+		return '{"owner":%s, "id":%s, "position":%s}' % (self.owner, self.id, self.position.store())
 	
 	@staticmethod
 	def restore(src):
