@@ -16,6 +16,8 @@ maxCoordinate = 20
 attackValue = 1
 Players = []
 
+currentPlayer = 0
+
 def genNewBase():
 	return
 
@@ -53,6 +55,8 @@ def attack(action):
 		return Response(result = False, cause = 'You should first join with this nickname')
 	index = [player.name for player in Players].index(action.owner)
 	player = Players[index]
+	if not action.id in player.units:
+		return Response(result = False, cause = 'There is no alive unit with this id')
 	if abs(action.position.x - player.units[action.id].position.x) + abs(action.position.y - player.units[action.id].position.y) > 1:
 		return Response(result = False, cause = 'This cell is not available')
 	for i in range(len(Players)):
@@ -61,7 +65,18 @@ def attack(action):
 				Players[i].units[j].health -= attackValue
 				if (Players[i].units[j].health <= 0):
 					del Players[i].units[j]
+		if Players[i].base["position"] == action.position:
+			Players[i].base["health"] -= attackValue
 	return Response(result = True)
+
+def makeNewStep():
+	for i in range(len(Players)):
+		if Players[i].base["health"] > 0:
+			unniqueId = 0
+			ids = [unit.id for unit in Players[i].units]
+			while str(uniqueId) in ids:
+				uniqueId += 1
+			Players[i].units.append(Unit(id = uniqueId, position = Players[i].base["position"], health = maxUnitHealth))
 
 def answer(to, obj):
 	pipes[to].send(obj)
@@ -71,17 +86,26 @@ def main(args):
 	#event loop
 	while True:
 		method, args, listener = EventQueue.get()
-		if method == 'join':
-			answer(listener, join(args))
-		elif method == 'getField':
-			answer(listener, getField())
-		elif method == 'moveUnit':
-			answer(listener, moveUnit(args))
-		elif method == 'attack':
-			answer(listener, attack(args))
-		elif method == 'stop':
+		if method == 'stop':
 			stopAll()
 			break
+		elif method != 'join' and len(Players) < maxPlayersCount:
+			answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
+		elif Players[currentPlayer].name != args.owner:
+			answer(listener, Response(result = False, cause = 'Please wait for your turn'))
 		else:
-			print('Unknown method')
+			if method == 'join':
+				answer(listener, join(args))
+			elif method == 'getField':
+				answer(listener, getField())
+			elif method == 'moveUnit':
+				answer(listener, moveUnit(args))
+			elif method == 'attack':
+				answer(listener, attack(args))
+			else:
+				print('Unknown method')
+			currentPlayer += 1
+			if currentPlayer == len(Players):
+				currentPlayer = 0
+				makeNewStep()
 
