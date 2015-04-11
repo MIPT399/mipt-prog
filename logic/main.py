@@ -88,26 +88,28 @@ def main(args):
         #event loop
         while True:
                 method, args, listener = EventQueue.get()
-                if method == 'stop':
-                        stopAll()
-                        break
-                elif method != 'join' and len(Players) < maxPlayersCount:
-                        answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
-                elif Players[currentPlayer].name != args.owner:
-                        answer(listener, Response(result = False, cause = 'Please wait for your turn'))
-                else:
-                        if method == 'join':
-                                answer(listener, join(args))
-                        elif method == 'getField':
-                                answer(listener, getField())
-                        elif method == 'moveUnit':
-                                answer(listener, moveUnit(args))
-                        elif method == 'attack':
-                                answer(listener, attack(args))
-                        else:
-                                print('Unknown method')
-                        currentPlayer += 1
-                        if currentPlayer == len(Players):
-                                currentPlayer = 0
-                                makeNewStep()
+                try:
+                    if method == 'stop':
+                            stopAll()
+                            break
+                    elif method != 'join' and len(Players) < maxPlayersCount:
+                            answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
+                    elif Players[currentPlayer].name != args.owner:
+                            answer(listener, Response(result = False, cause = 'Please wait for your turn'))
+                    elif method == 'join':
+                            answer(listener, join(args))
+                    elif method == 'getField':
+                            answer(listener, getField())
+                    elif method == 'moveUnit':
+                            answer(listener, moveUnit(args))
+                    elif method == 'attack':
+                            answer(listener, attack(args))
+                    else:
+                            print('Unknown method')
+                    currentPlayer += 1
+                    if currentPlayer == len(Players):
+                            currentPlayer = 0
+                            makeNewStep()
+                except KeyError:
+                    pass
 
