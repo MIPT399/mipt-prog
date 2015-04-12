@@ -16,28 +16,32 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 def process_main(handler, EventQueue, self, cpipe):
     attached = False
     name = None
-    while True:
-        method = handler.rfile.readline().decode().strip()
-        arg = handler.rfile.readline().decode().strip()
-        if method == 'join':
-            name = arg
-            EventQueue.put((method, name, self))
-            answer = cpipe.recv()
-            if not answer.result:
+    try:
+        while True:
+            method = handler.rfile.readline().decode().strip()
+            arg = handler.rfile.readline().decode().strip()
+            if method == 'join':
+                name = arg
+                EventQueue.put((method, name, self))
+                answer = cpipe.recv()
+                if not answer.result:
+                    break
+                attached = True
+                handler.wfile.write((dumps(answer) + '\n').encode())
+            elif attached and method in {'getField', 'moveUnit', 'attack'}:
+                arg = structures.game.load(arg, method)
+                if hasattr(arg, 'owner') and getattr(arg, 'owner') != name:
+                    handler.wfile.write(b'{"result"=false, "cause"="wrong owner"}')
+                    continue
+                EventQueue.put((method, arg, self))
+                answer = cpipe.recv()
+                handler.wfile.write((dumps(answer) + '\n').encode())
+            else:
+                handler.wfile.write('unknown method\n'.encode())
                 break
-            attached = True
-            handler.wfile.write((dumps(answer) + '\n').encode())
-        elif attached and method in {'getField', 'moveUnit', 'attack'}:
-            arg = structures.game.load(arg, method)
-            if hasattr(arg, 'owner') and getattr(arg, 'owner') != name:
-                handler.wfile.write(b'{"result"=false, "cause"="wrong owner"}')
-                continue
-            EventQueue.put((method, arg, self))
-            answer = cpipe.recv()
-            handler.wfile.write((dumps(answer) + '\n').encode())
-        else:
-            handler.wfile.write('unknown method\n'.encode())
-            break
+    finally:
+        if name != None:
+            EventQueue.put(('disconnect', name, self))
     handler.wfile.write("Go away!\n".encode())
 
 
@@ -59,6 +63,11 @@ class GameListener:
                 prc = mp.Process(target=process_main, args=(self, equeue, name, cpipe))
                 prc.start()
                 prc.join()
+                children_lock.acquire()
+                try:
+                    del pipes[name]
+                finally:
+                    children_lock.release()
         port = 3721
         for s in ARGV:
             if s.startswith('--port='):
