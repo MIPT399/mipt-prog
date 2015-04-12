@@ -108,10 +108,10 @@ def main(args):
                         answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
                 elif method == 'join':
                         answer(listener, join(args))
-                elif Players[currentPlayer].name != args.owner:
-                        answer(listener, Response(result = False, cause = 'Please wait for your turn'))
                 elif method == 'getField':
                         answer(listener, getField())
+                elif Players[currentPlayer].name != args.owner:
+                        answer(listener, Response(result = False, cause = 'Please wait for your turn'))
                 elif method == 'moveUnit':
                         answer(listener, moveUnit(args))
                 elif method == 'attack':
