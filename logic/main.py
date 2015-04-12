@@ -83,7 +83,7 @@ def makeNewTurn():
                         ids = [unit.id for unit in Players[i].units]
                         while str(uniqueId) in ids:
                                 uniqueId += 1
-                        Players[i].units.append(Unit(id = uniqueId, position = Players[i].base["position"], health = maxUnitHealth))
+                        Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
 
 
 def answer(to, obj):
@@ -119,7 +119,10 @@ def main(args):
                         answer(listener, attack(args))
                 else:
                         print('Unknown method')
-                currentPlayer += 1
+                if len(Players) == maxPlayersCount:
+                	currentPlayer += 1
+                else
+                	currentPlayer = 0
                 if currentPlayer == len(Players):
                         currentPlayer = 0
                         makeNewTurn()
