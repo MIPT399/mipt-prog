@@ -49,10 +49,13 @@ def moveUnit(action):
         if action.owner not in [player.name for player in Players]:
                 return Response(result = False, cause = 'You should first join with this nickname')
         index = [player.name for player in Players].index(action.owner)
+        if action.id not in [unit.id for unit in Players[index].units]:
+        		return Response(result = False, cause = 'The unit with this id wasn\'t found')
+        unitIndex = [unit.id for unit in Players[index].units].index(action.id)
         player = Players[index]
-        if abs(action.position.x - player.units[action.id].position.x) + abs(action.position.y - player.units[action.id].position.y) != 1:
+        if abs(action.position.x - player.units[unitIndex].position.x) + abs(action.position.y - player.units[unitIndex].position.y) != 1:
                 return Response(result = False, cause = 'This cell is not available')
-        Players[index].units[action.id].position = action.position
+        Players[index].units[unitIndex].position = action.position
         return Response(result = True)
 
 
@@ -63,7 +66,8 @@ def attack(action):
         player = Players[index]
         if action.id not in player.units:
                 return Response(result = False, cause = 'There is no alive unit with this id')
-        if abs(action.position.x - player.units[action.id].position.x) + abs(action.position.y - player.units[action.id].position.y) > 1:
+        unitIndex = [unit.id for unit in player.units].index(action.id)
+        if abs(action.position.x - player.units[unitIndex].position.x) + abs(action.position.y - player.units[unitIndex].position.y) > 1:
                 return Response(result = False, cause = 'This cell is not available')
         for i in range(len(Players)):
                 for j in range(len(Players[i].units)):
