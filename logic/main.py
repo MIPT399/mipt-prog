@@ -37,6 +37,7 @@ def join(str):
         while nPos in [player.base['position'] for player in Players]:
                 nPos = Point(x = randint(-maxCoordinate, maxCoordinate), y = randint(-maxCoordinate, maxCoordinate))
         nPlayer = Player(name=str, base={"health" : maxBaseHealth, "position" : nPos}, units=[])
+        Players.append(nPlayer)
         return Response(result = True)
 
 
