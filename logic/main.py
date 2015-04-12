@@ -117,6 +117,7 @@ def main(args):
                         currentPlayer -= 1
                 elif Players[currentPlayer].name != args.owner:
                         answer(listener, Response(result = False, cause = 'Please wait for your turn'))
+                        currentPlayer -= 1
                 elif method == 'moveUnit':
                         answer(listener, moveUnit(args))
                 elif method == 'attack':
