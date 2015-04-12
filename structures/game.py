@@ -20,15 +20,15 @@ def type_assert(o, exp_type='Action'):
         type_assert(o, ops[exp_type])
     elif isinstance(exp_type, list):
         exp_type, = exp_type
-        for val in exp_type:
+        for val in o:
             type_assert(val, exp_type)
     elif isinstance(exp_type, dict):
         assert isinstance(o, dict)
-        for key, val in exp_type:
+        for key, val in exp_type.items():
             assert key in o
             type_assert(o[key], val)
     else:
-        assert isinstance(o, type(exp_type))
+        assert isinstance(o, exp_type)
 
 def load(source, method_name):
     types = {
