@@ -31,7 +31,7 @@ def process_main(handler, EventQueue, self, cpipe):
             elif attached and method in {'getField', 'moveUnit', 'attack'}:
                 arg = structures.game.load(arg, method)
                 if hasattr(arg, 'owner') and getattr(arg, 'owner') != name:
-                    handler.wfile.write(b'{"result"=false, "cause"="wrong owner"}')
+                    handler.wfile.write(b'{"result": false, "cause": "wrong owner"}')
                     continue
                 EventQueue.put((method, arg, self))
                 answer = cpipe.recv()
