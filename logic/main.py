@@ -122,8 +122,8 @@ def main(args):
                 if len(Players) == maxPlayersCount:
                 	currentPlayer += 1
                 else:
-                	currentPlayer = 0
-                if currentPlayer == len(Players):
+                	currentPlayer = len(Players)
+                if currentPlayer == len(Players) == maxPlayersCount:
                         currentPlayer = 0
                         makeNewTurn()
 
