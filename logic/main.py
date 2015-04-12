@@ -4,7 +4,7 @@ import multiprocessing as mp
 EventQueue = mp.Queue()
 ARGV = []
 
-from listeners.main import loadAll, stopAll, pipes
+from listeners.main import loadAll, stopAll, pipes, children_lock
 
 __all__ = ['main', 'EventQueue', 'ARGV']
 
@@ -36,7 +36,7 @@ def join(str):
         nPos = Point(x = randint(-maxCoordinate, maxCoordinate), y = randint(-maxCoordinate, maxCoordinate))
         while nPos in [player.base['position'] for player in Players]:
                 nPos = Point(x = randint(-maxCoordinate, maxCoordinate), y = randint(-maxCoordinate, maxCoordinate))
-        nPlayer = Player(str, {"health" : maxBaseHealth, "position" : nPos}, [])
+        nPlayer = Player(name=str, base={"health" : maxBaseHealth, "position" : nPos}, units=[])
         return Response(result = True)
 
 
@@ -86,7 +86,11 @@ def makeNewStep():
 
 
 def answer(to, obj):
+    children_lock.acquire()
+    try:
         pipes[to].send(obj)
+    finally:
+        children_lock.release()
 
 
 def main(args):
@@ -102,10 +106,10 @@ def main(args):
                             break
                     elif method != 'join' and len(Players) < maxPlayersCount:
                             answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
-                    elif Players[currentPlayer].name != args.owner:
-                            answer(listener, Response(result = False, cause = 'Please wait for your turn'))
                     elif method == 'join':
                             answer(listener, join(args))
+                    elif Players[currentPlayer].name != args.owner:
+                            answer(listener, Response(result = False, cause = 'Please wait for your turn'))
                     elif method == 'getField':
                             answer(listener, getField())
                     elif method == 'moveUnit':
