@@ -15,10 +15,12 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 def process_main(handler, EventQueue, self, cpipe):
     attached = False
+    name = None
     while True:
         method = handler.rfile.readline().decode().strip()
         arg = handler.rfile.readline().decode().strip()
         if method == 'join':
+            name = arg
             EventQueue.put((method, arg, self))
             answer = cpipe.recv()
             if not answer.result:
@@ -26,7 +28,11 @@ def process_main(handler, EventQueue, self, cpipe):
             attached = True
             handler.wfile.write((dumps(answer) + '\n').encode())
         elif attached and method in {'getField', 'moveUnit', 'attack'}:
-            EventQueue.put((method, structures.game.load(arg, method), self))
+            arg = structures.game.load(arg, method)
+            if hasattr(arg, 'owner') and getattr(arg, 'owner') != name:
+                handler.wfile.write(b'{"result"=false, "cause"="wrong owner"}')
+                continue
+            EventQueue.put((method, name, self))
             answer = cpipe.recv()
             handler.wfile.write((dumps(answer) + '\n').encode())
         else:
