@@ -76,7 +76,7 @@ def attack(action):
         return Response(result = True)
 
 
-def makeNewStep():
+def makeNewTurn():
         for i in range(len(Players)):
                 if Players[i].base["health"] > 0:
                         uniqueId = 0
@@ -110,6 +110,7 @@ def main(args):
                         answer(listener, join(args))
                 elif method == 'getField':
                         answer(listener, getField())
+                        currentPlayer -= 1
                 elif Players[currentPlayer].name != args.owner:
                         answer(listener, Response(result = False, cause = 'Please wait for your turn'))
                 elif method == 'moveUnit':
@@ -121,5 +122,5 @@ def main(args):
                 currentPlayer += 1
                 if currentPlayer == len(Players):
                         currentPlayer = 0
-                        makeNewStep()
+                        makeNewTurn()
 
