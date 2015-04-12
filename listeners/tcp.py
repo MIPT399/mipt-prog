@@ -21,7 +21,7 @@ def process_main(handler, EventQueue, self, cpipe):
         arg = handler.rfile.readline().decode().strip()
         if method == 'join':
             name = arg
-            EventQueue.put((method, arg, self))
+            EventQueue.put((method, name, self))
             answer = cpipe.recv()
             if not answer.result:
                 break
@@ -32,7 +32,7 @@ def process_main(handler, EventQueue, self, cpipe):
             if hasattr(arg, 'owner') and getattr(arg, 'owner') != name:
                 handler.wfile.write(b'{"result"=false, "cause"="wrong owner"}')
                 continue
-            EventQueue.put((method, name, self))
+            EventQueue.put((method, arg, self))
             answer = cpipe.recv()
             handler.wfile.write((dumps(answer) + '\n').encode())
         else:
