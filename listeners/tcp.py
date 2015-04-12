@@ -1,39 +1,46 @@
-from socketserver import TCPServer, BaseRequestHandler
+import socketserver
 from logic.main import ARGV
 from json import loads, dumps
-import threading
 import multiprocessing as mp
-from listeners.main import children_lock
+from listeners.main import *
+import socket
+
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
+    def server_bind(self):
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind(self.server_address)
+
 
 def threadMain(handler, EventQueue):
     def processMain(handler, name, cpipe, self):
         while True:
-            s = handler.rfile.readline()
-            method, arg = split(s, ':')
+            method = handler.rfile.readline().decode().strip()
+            arg = handler.rfile.readline().decode().strip()
             if method in {'getField', 'moveUnit', 'attack'}:
                 EventQueue.put((method, arg, self))
                 answer = cpipe.recv()
-                handler.wfile.write(dumps(answer) + '\n')
+                handler.wfile.write((dumps(answer) + '\n').encode())
             else:
-                handler.wfile.write('unknown method\n')
-    while True:
-        s = handler.rfile.readline()
-        method, arg = split(s, ':')
-        name = None
-        if method == 'join':
-            children_lock.acquire()
+                handler.wfile.write('unknown method\n'.encode())
+                break
+    method = handler.rfile.readline().decode().strip()
+    arg = handler.rfile.readline().decode().strip()
+    if method == 'join':
+        name = arg
+        children_lock.acquire()
+        try:
             cpipe, ppipe = mp.Pipe()
             if ('tcp'+name) not in pipes:
                 pipes['tcp'+name] = ppipe
-                mp.Process(target=processMain, args=(handler, name, cpipe, 'tcp'+name)).start()
+                prc = mp.Process(target=processMain, args=(handler, name, cpipe, 'tcp'+name))
+                prc.start()
+                return prc
+        finally:
             children_lock.release()
-            return
-        else:
-           print("I don't know you.\n")
-    
+    print("I don't know you.\n".encode())
+
+
 @listener('TCP')
 class GameListener:
     def __init__(self, EventQueue):
@@ -41,12 +48,11 @@ class GameListener:
     
     def main(self):
         equeue = self.EventQueue
-        class Handler(BaseRequestHandler):
+        class Handler(socketserver.StreamRequestHandler):
             def handle(self):
-                threading.Thread(target=threadMain, args=(self, equeue))
-                threadMain(selfa)
+                threadMain(self, equeue).join()
         port = 3721
-        for s in  ARGV:
+        for s in ARGV:
             if s.startswith('--port='):
                 port = int(s[len('--port='):])
         srv = ThreadedTCPServer(('', port), Handler)

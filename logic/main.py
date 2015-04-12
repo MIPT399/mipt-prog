@@ -1,9 +1,8 @@
-import sys
 from structures.game import *
 import multiprocessing as mp 
 
 EventQueue = mp.Queue()
-ARGV=[]
+ARGV = []
 
 from listeners.main import loadAll, stopAll, pipes
 
@@ -19,8 +18,10 @@ Players = []
 
 currentPlayer = 0
 
+
 def genNewBase():
         return
+
 
 def join(str):
         if str in [player.name for player in Players]:
@@ -38,11 +39,13 @@ def join(str):
         nPlayer = Player(str, {"health" : maxBaseHealth, "position" : nPos}, [])
         return Response(result = True)
 
+
 def getField():
         return Players
 
+
 def moveUnit(action):
-        if not action.owner in [player.name for player in Players]:
+        if action.owner not in [player.name for player in Players]:
                 return Response(result = False, cause = 'You should first join with this nickname')
         index = [player.name for player in Players].index(action.owner)
         player = Players[index]
@@ -51,12 +54,13 @@ def moveUnit(action):
         Players[index].units[action.id].position = action.position
         return Response(result = True)
 
+
 def attack(action):
-        if not action.owner in [player.name for player in Players]:
+        if  action.owner not in [player.name for player in Players]:
                 return Response(result = False, cause = 'You should first join with this nickname')
         index = [player.name for player in Players].index(action.owner)
         player = Players[index]
-        if not action.id in player.units:
+        if action.id not in player.units:
                 return Response(result = False, cause = 'There is no alive unit with this id')
         if abs(action.position.x - player.units[action.id].position.x) + abs(action.position.y - player.units[action.id].position.y) > 1:
                 return Response(result = False, cause = 'This cell is not available')
@@ -70,19 +74,23 @@ def attack(action):
                         Players[i].base["health"] -= attackValue
         return Response(result = True)
 
+
 def makeNewStep():
         for i in range(len(Players)):
                 if Players[i].base["health"] > 0:
-                        unniqueId = 0
+                        uniqueId = 0
                         ids = [unit.id for unit in Players[i].units]
                         while str(uniqueId) in ids:
                                 uniqueId += 1
                         Players[i].units.append(Unit(id = uniqueId, position = Players[i].base["position"], health = maxUnitHealth))
 
+
 def answer(to, obj):
         pipes[to].send(obj)
 
+
 def main(args):
+        global currentPlayer, ARGV
         ARGV = args
         loadAll()
         #event loop
