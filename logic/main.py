@@ -121,7 +121,7 @@ def main(args):
                         print('Unknown method')
                 if len(Players) == maxPlayersCount:
                 	currentPlayer += 1
-                else
+                else:
                 	currentPlayer = 0
                 if currentPlayer == len(Players):
                         currentPlayer = 0
