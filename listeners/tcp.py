@@ -32,7 +32,7 @@ def process_main(handler, EventQueue, self, cpipe):
         else:
             handler.wfile.write('unknown method\n'.encode())
             break
-    print("Go away!\n".encode())
+    handler.wfile.write("Go away!\n".encode())
 
 
 @listener('TCP')
