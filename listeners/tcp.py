@@ -1,10 +1,10 @@
 import socketserver
 from logic.main import ARGV
-from json import loads, dumps
+from json import dumps
 import multiprocessing as mp
 from listeners.main import *
 import socket
-
+import structures.game
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def server_bind(self):
@@ -18,7 +18,7 @@ def threadMain(handler, EventQueue):
             method = handler.rfile.readline().decode().strip()
             arg = handler.rfile.readline().decode().strip()
             if method in {'getField', 'moveUnit', 'attack'}:
-                EventQueue.put((method, arg, self))
+                EventQueue.put((method, structures.game.load(arg, method), self))
                 answer = cpipe.recv()
                 handler.wfile.write((dumps(answer) + '\n').encode())
             else:
@@ -45,7 +45,6 @@ def threadMain(handler, EventQueue):
 class GameListener:
     def __init__(self, EventQueue):
         self.EventQueue = EventQueue
-    
     def main(self):
         equeue = self.EventQueue
         class Handler(socketserver.StreamRequestHandler):
