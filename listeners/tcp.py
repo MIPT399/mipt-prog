@@ -13,14 +13,8 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.socket.bind(self.server_address)
 
 
-def thread_main(handler, EventQueue):
+def process_main(handler, EventQueue, self, cpipe):
     attached = False
-    children_lock.acquire()
-    try:
-        cpipe, ppipe = mp.Pipe()
-        self = 'tcp' + str(len(pipes))
-    finally:
-        children_lock.release()
     while True:
         method = handler.rfile.readline().decode().strip()
         arg = handler.rfile.readline().decode().strip()
@@ -49,10 +43,17 @@ class GameListener:
         equeue = self.EventQueue
         class Handler(socketserver.StreamRequestHandler):
             def handle(self):
-                prc = mp.Process(target=thread_main, args=(self, equeue))
+                children_lock.acquire()
+                try:
+                    cpipe, ppipe = mp.Pipe()
+                    name = 'tcp' + str(len(pipes))
+                    pipes[name] = ppipe
+                finally:
+                    children_lock.release()
+                prc = mp.Process(target=process_main, args=(self, equeue, name, cpipe))
                 prc.start()
                 prc.join()
-        port = 3723
+        port = 3721
         for s in ARGV:
             if s.startswith('--port='):
                 port = int(s[len('--port='):])
