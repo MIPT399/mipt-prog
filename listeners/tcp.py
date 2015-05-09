@@ -13,21 +13,27 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.socket.bind(self.server_address)
 
 
+def split(s):
+    i = s.find(' ')
+    if i == -1:
+        return s, ''
+    else:
+        return s[:i], s[i+1:]
+
 def process_main(handler, EventQueue, self, cpipe):
     attached = False
     name = None
     try:
         while True:
-            method = handler.rfile.readline().decode().strip()
-            arg = handler.rfile.readline().decode().strip()
+            method, arg = split(handler.rfile.readline().decode().strip())
             if method == 'join':
                 name = arg
                 EventQueue.put((method, name, self))
                 answer = cpipe.recv()
-                if not answer.result:
-                    break
                 attached = True
                 handler.wfile.write((dumps(answer) + '\n').encode())
+                if not answer.result:
+                    break
             elif attached and method in {'getField', 'moveUnit', 'attack'}:
                 arg = structures.game.load(arg, method)
                 if hasattr(arg, 'owner') and getattr(arg, 'owner') != name:
@@ -42,7 +48,6 @@ def process_main(handler, EventQueue, self, cpipe):
     finally:
         if name != None:
             EventQueue.put(('disconnect', name, self))
-    handler.wfile.write("Go away!\n".encode())
 
 
 @listener('TCP')
