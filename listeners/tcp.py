@@ -73,7 +73,7 @@ class GameListener:
                     del pipes[name]
                 finally:
                     children_lock.release()
-        port = 3721
+        port = 1234
         for s in ARGV:
             if s.startswith('--port='):
                 port = int(s[len('--port='):])
