@@ -21,10 +21,10 @@ def send(data):
 		print("Something really bad has happened", file = sys.stderr)
 
 def join(name):
-	return json.loads(send("join " + json.dumps({"Player" : name})))
+	return json.loads(send("join " + name))
 
 def method():
-	send("join {Player : \"Hu23\"}")
+	send("join Hu23")
 
 def getField():
 	return json.loads(send("getField"))
