@@ -124,13 +124,18 @@ def main(args):
 				elif method == 'getField':
 						answer(listener, getField())
 						currentPlayer -= 1
-				elif Players[currentPlayer].name != args.owner:
-						answer(listener, Response(result = False, cause = 'Please wait for your turn'))
-						currentPlayer -= 1
 				elif method == 'moveUnit':
-						answer(listener, moveUnit(args))
+						if Players[currentPlayer].name != args.owner:
+							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
+							currentPlayer -= 1
+						else:
+							answer(listener, moveUnit(args))
 				elif method == 'attack':
-						answer(listener, attack(args))
+						if Players[currentPlayer].name != args.owner:
+							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
+							currentPlayer -= 1
+						else:
+							answer(listener, attack(args))
 				else:
 						print('Unknown method')
 				if len(Players) == maxPlayersCount:
