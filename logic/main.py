@@ -86,7 +86,8 @@ def disconnect(action):
 				return Response(result = False, cause = 'You do not exist')
 		index = [player.name for player in Players].index(name)
 		del Players[index]
-		maxPlayersCount -= 1
+		if len(Players) == maxPlayersCount: 
+			maxPlayersCount -= 1
 		return Response(result = True)
 
 def makeNewTurn():
