@@ -133,7 +133,11 @@ def main(args):
 				newPlayerTurn = True
 				print(method, args)
 				if method == 'join':
+						wereAll = (len(Players) == maxPlayersCount)
 						answer(listener, join(args, listener))
+						areAll = (len(Players) == maxPlayersCount)
+						if (not wereAll) and areAll:
+								answer(Players[0].listener, Response(result = True))
 				elif method == 'disconnect':
 						answer(listener, disconnect(args))
 				elif method == 'getField':
