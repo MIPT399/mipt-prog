@@ -34,7 +34,7 @@ def process_main(handler, EventQueue, self, cpipe):
                 handler.wfile.write((dumps(answer) + '\n').encode())
                 if not answer.result:
                     break
-            elif attached and method in {'getField', 'moveUnit', 'attack'}:
+            elif attached and method in {'getField', 'moveUnit', 'attack', 'wait'}:
                 arg = structures.game.load(arg, method)
                 if hasattr(arg, 'owner') and getattr(arg, 'owner') != name:
                     handler.wfile.write(b'{"result": false, "cause": "wrong owner"}')
