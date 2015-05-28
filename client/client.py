@@ -4,7 +4,8 @@ import sys
 
 __all__ = ["method", "getField", "stop", "close", "init", "stop", "moveUnit", "attack"]
 
-HOST, PORT = "localhost", 1234
+NAME, HOST, PORT = "", "localhost", 1234
+
 
 def init():
 	global sock
@@ -21,6 +22,8 @@ def send(data):
 		print("Something really bad has happened", file = sys.stderr)
 
 def join(name):
+	global NAME
+	NAME = name
 	return json.loads(send("join " + name))
 
 def method():
@@ -30,9 +33,11 @@ def getField():
 	return json.loads(send("getField"))
 
 def moveUnit(action):
+	action['owner'] = NAME
 	return json.loads(send("moveUnit " + json.dumps(action)))
 
 def attack(action):
+	action['owner'] = NAME
 	return json.loads(send("attack " + json.dumps(action)))
 
 def close():

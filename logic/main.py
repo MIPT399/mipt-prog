@@ -114,6 +114,7 @@ def main(args):
 		while True:
 				method, args, listener = EventQueue.get()
 				newPlayerTurn = True
+				print(method, args)
 				if method == 'stop':
 						stopAll()
 						break
