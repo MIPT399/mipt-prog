@@ -92,10 +92,11 @@ def disconnect(action):
 
 def makeNewTurn():
 		global maxPlayersCount, Players
+		toDelete = []
 		for i in range(len(Players)):
-				if Players[i].base["health"] <= 0:
+				if Players[i].base["health"] <= 0:	
 					stop(Players[i].listener, "Go to Hell")
-					del Players[i]
+					toDelete = [i] + toDelete
 					maxPlayersCount -= 1
 				else: 
 						uniqueId = 0
@@ -104,6 +105,8 @@ def makeNewTurn():
 								uniqueId += 1
 						Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
 						Players[i].base["health"] -= 1
+		for i in toDelete:
+				del Players[i]
 		if len(Players) == 0:
 			maxPlayersCount = 2
 		elif len(Players) == 1:
@@ -147,8 +150,10 @@ def main(args):
 						newPlayerTurn = False
 				elif method == 'wait':
 						index = [x.listener for x in Players].index(listener)
+						if (currentPlayer == index):
+								answer(listener, Response(result = False, cause = 'It is your turn'))
 						Players[index].waiting = True
-						newPlayerTurn = False						
+						newPlayerTurn = False
 				elif method != 'join' and len(Players) < maxPlayersCount:
 						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'moveUnit':
