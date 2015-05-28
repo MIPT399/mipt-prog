@@ -5,6 +5,7 @@ children_lock = th.Lock()
 
 __all__ = ['loadAll', 'stopAll', 'pipes', 'children_lock', 'listener']
 
+listeners = []
 children = {}
 pipes = {}
 status = {}
