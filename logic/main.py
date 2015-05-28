@@ -94,7 +94,7 @@ def makeNewTurn():
 		global maxPlayersCount, Players
 		for i in range(len(Players)):
 				if Players[i].base["health"] <= 0:
-					stop(Players[i].listeners, "Go to Hell")
+					stop(Players[i].listener, "Go to Hell")
 					del Players[i]
 					maxPlayersCount -= 1
 				else: 
@@ -107,7 +107,7 @@ def makeNewTurn():
 		if len(Players) == 0:
 			maxPlayersCount = 2
 		elif len(Players) == 1:
-			stop(Players[0].listeners, "You won")
+			stop(Players[0].listener, "You won")
 			del Players[0]
 			maxPlayersCount = 2
 				

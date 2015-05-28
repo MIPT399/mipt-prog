@@ -52,4 +52,6 @@ def close():
 def stop():
         return send("stop")
 
+def wait():
+	return send("wait")
 
