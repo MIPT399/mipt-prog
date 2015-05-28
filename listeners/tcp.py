@@ -44,7 +44,7 @@ def process_main(handler, EventQueue, self, cpipe):
                 handler.wfile.write((dumps(answer) + '\n').encode())
             else:
                 handler.wfile.write('unknown method\n'.encode())
-                break
+                break 
     finally:
         if name != None:
             EventQueue.put(('disconnect', name, self))
@@ -63,13 +63,17 @@ class GameListener:
                     cpipe, ppipe = mp.Pipe()
                     name = 'tcp' + str(len(pipes))
                     pipes[name] = ppipe
+                    prc = mp.Process(target=process_main, args=(self, equeue, name, cpipe))
+                    children[name] = prc
                 finally:
                     children_lock.release()
-                prc = mp.Process(target=process_main, args=(self, equeue, name, cpipe))
                 prc.start()
                 prc.join()
                 children_lock.acquire()
                 try:
+                    if name in status:
+                        self.wfile.write(status[name].encode())
+                    del status[name]
                     del pipes[name]
                 finally:
                     children_lock.release()

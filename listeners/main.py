@@ -5,9 +5,9 @@ children_lock = th.Lock()
 
 __all__ = ['loadAll', 'stopAll', 'pipes', 'children_lock', 'listener']
 
-listeners = []
-children = []
+children = {}
 pipes = {}
+status = {}
 
 
 def listener(name):
@@ -23,13 +23,15 @@ def loadAll():
         obj = cls(EventQueue)
         listeners[i] = (name, obj)
         child = th.Thread(target=obj.main)
-        children.append(child)
         child.start()
 
 
-def stopAll():
-    for p in children:
-        p.stop()
-
+def stop(listener, message):
+    children_lock.acquire()
+    try:
+        status[listener] = message
+        children[listener].terminate()
+    finally:
+        children_lock.release()
 
 from . import *
