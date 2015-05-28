@@ -80,7 +80,7 @@ def attack(action):
 		return Response(result = True)
 
 def disconnect(action):
-		# global maxPlayersCount
+		global maxPlayersCount
 		name = str(action)
 		if name not in [player.name for player in Players]:
 				return Response(result = False, cause = 'You do not exist')
@@ -90,6 +90,7 @@ def disconnect(action):
 		return Response(result = True)
 
 def makeNewTurn():
+		global maxPlayersCount, Players
 		for i in range(len(Players)):
 				if Players[i].base["health"] <= 0:
 					stop(Players[i].listeners, "Go to Hell")
