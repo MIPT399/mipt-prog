@@ -80,12 +80,13 @@ def attack(action):
 		return Response(result = True)
 
 def disconnect(action):
+		# global maxPlayersCount
 		name = str(action)
 		if name not in [player.name for player in Players]:
 				return Response(result = False, cause = 'You do not exist')
 		index = [player.name for player in Players].index(name)
-		Players[index].base["health"] = 0
-		Players[index].units = []
+		del Players[index]
+		# maxPlayersCount -= 1
 		return Response(result = True)
 
 def makeNewTurn():
@@ -107,11 +108,11 @@ def answer(to, obj):
 
 
 def main(args):
-		global currentPlayer, ARGV
+		global currentPlayer, ARGV, maxPlayersCount
 		ARGV = args
 		for arg in args:
-			if args.startswith('--players='):
-				maxPlayersCount = int(args[len('--players='):])
+			if arg.startswith('--players='):
+				maxPlayersCount = int(arg[len('--players='):])
 		loadAll()
 		#event loop
 		while True:
@@ -121,8 +122,6 @@ def main(args):
 				if method == 'stop':
 						stopAll()
 						break
-				elif method != 'join' and len(Players) < maxPlayersCount:
-						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'join':
 						answer(listener, join(args, listener))
 				elif method == 'disconnect':
@@ -134,6 +133,8 @@ def main(args):
 						index = [x.name for x in Players].index(args.owner)
 						Players[index].waiting = True
 						newPlayerTurn = False						
+				elif method != 'join' and len(Players) < maxPlayersCount:
+						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'moveUnit':
 						if Players[currentPlayer].name != args.owner:
 							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
