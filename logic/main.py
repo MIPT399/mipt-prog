@@ -138,6 +138,7 @@ def main(args):
 						areAll = (len(Players) == maxPlayersCount)
 						if (not wereAll) and areAll:
 								answer(Players[0].listener, Response(result = True))
+								makeNewTurn()
 				elif method == 'disconnect':
 						answer(listener, disconnect(args))
 				elif method == 'getField':
