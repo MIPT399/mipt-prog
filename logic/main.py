@@ -148,7 +148,7 @@ def main(args):
 				elif method == 'wait':
 						index = [x.listener for x in Players].index(listener)
 						if (currentPlayer == index):
-								break
+								answer(listener, Response(result = False, cause = 'It is your turn'))
 						Players[index].waiting = True
 						newPlayerTurn = False
 				elif method != 'join' and len(Players) < maxPlayersCount:
