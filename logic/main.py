@@ -141,7 +141,7 @@ def main(args):
 									answer(Players[0].listener, Response(result = True))
 								makeNewTurn()
 				elif method == 'disconnect':
-						answer(listener, disconnect(args))
+						disconnect(args)
 				elif method == 'getField':
 						answer(listener, getField())
 						newPlayerTurn = False
@@ -170,6 +170,7 @@ def main(args):
 								currentPlayer = (currentPlayer + 1) % len(Players)
 								if currentPlayer == 0:
 										makeNewTurn()
+										print('----------------')
 						if Players[currentPlayer].waiting:
 								answer(Players[currentPlayer].listener, Response(result = True))
 								Players[currentPlayer].waiting = False
