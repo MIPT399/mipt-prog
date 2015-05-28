@@ -130,10 +130,7 @@ def main(args):
 				method, args, listener = EventQueue.get()
 				newPlayerTurn = True
 				print(method, args)
-				if method == 'stop':
-						stopAll()
-						break
-				elif method == 'join':
+				if method == 'join':
 						answer(listener, join(args, listener))
 				elif method == 'disconnect':
 						answer(listener, disconnect(args))
