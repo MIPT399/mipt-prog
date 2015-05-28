@@ -93,7 +93,7 @@ def disconnect(action):
 def makeNewTurn():
 		global maxPlayersCount, Players
 		for i in range(len(Players)):
-				if Players[i].base["health"] <= 0:
+				if Players[i].base["health"] <= 0:	
 					stop(Players[i].listener, "Go to Hell")
 					del Players[i]
 					maxPlayersCount -= 1
@@ -147,8 +147,10 @@ def main(args):
 						newPlayerTurn = False
 				elif method == 'wait':
 						index = [x.listener for x in Players].index(listener)
+						if (currentPlayer == index):
+								break
 						Players[index].waiting = True
-						newPlayerTurn = False						
+						newPlayerTurn = False
 				elif method != 'join' and len(Players) < maxPlayersCount:
 						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'moveUnit':
