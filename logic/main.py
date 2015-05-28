@@ -4,7 +4,7 @@ import multiprocessing as mp
 EventQueue = mp.Queue()
 ARGV = []
 
-from listeners.main import loadAll, stopAll, pipes, children_lock
+from listeners.main import loadAll, stop, pipes, children_lock
 
 __all__ = ['main', 'EventQueue', 'ARGV']
 
