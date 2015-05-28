@@ -129,38 +129,30 @@ def main(args):
 						answer(listener, disconnect(args))
 				elif method == 'getField':
 						answer(listener, getField())
-						currentPlayer -= 1
 						newPlayerTurn = False
 				elif method == 'wait':
 						index = [x.name for x in Players].index(args.owner)
 						Players[index].waiting = True
-						currentPlayer -= 1
 						newPlayerTurn = False						
 				elif method == 'moveUnit':
 						if Players[currentPlayer].name != args.owner:
 							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
-							currentPlayer -= 1
 						else:
 							answer(listener, moveUnit(args))
 				elif method == 'attack':
 						if Players[currentPlayer].name != args.owner:
 							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
-							currentPlayer -= 1
 						else:
 							answer(listener, attack(args))
 				else:
 						print('Unknown method')
 
-				if len(Players) == maxPlayersCount:
-						currentPlayer = (currentPlayer + 1) % maxPlayersCount
+				if newPlayerTurn and len(Players) > 0:
+						currentPlayer = (currentPlayer + 1) % len(Players)
 						while Players[currentPlayer].base["health"] <= 0 and len(Players[currentPlayer].units) == 0:
-								currentPlayer = (currentPlayer + 1) % maxPlayersCount
-				else:
-						currentPlayer = len(Players)
-				if currentPlayer == len(Players) == maxPlayersCount:
-						currentPlayer = 0
-						makeNewTurn()
-
-				if newPlayerTurn and Players[currentPlayer].waiting:
-						answer(Players[currentPlayer].listener, Response(result = True))
-						Players[currentPlayer].waiting = False
+								currentPlayer = (currentPlayer + 1) % len(Players)
+								if currentPlayer == 0:
+										makeNewTurn()
+						if Players[currentPlayer].waiting:
+								answer(Players[currentPlayer].listener, Response(result = True))
+								Players[currentPlayer].waiting = False
