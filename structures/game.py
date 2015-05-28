@@ -35,6 +35,7 @@ def load(source, method_name):
         'moveUnit': 'Action',
         'attack': 'Action',
         'getField': None,
+        'wait': None
     }
     assert len(source) < 300
     if types[method_name] is None:
