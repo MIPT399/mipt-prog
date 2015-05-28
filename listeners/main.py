@@ -3,7 +3,7 @@ import threading as th
 
 children_lock = th.Lock()
 
-__all__ = ['loadAll', 'stop', 'pipes', 'children_lock', 'listener', 'children', 'listeners']
+__all__ = ['loadAll', 'stop', 'pipes', 'children_lock', 'listener', 'children', 'listeners', 'status']
 
 listeners = []
 children = {}
