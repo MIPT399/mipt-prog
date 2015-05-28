@@ -109,6 +109,9 @@ def answer(to, obj):
 def main(args):
 		global currentPlayer, ARGV
 		ARGV = args
+		for arg in args:
+			if args.startswith('--players='):
+				maxPlayersCount = int(args[len('--players='):])
 		loadAll()
 		#event loop
 		while True:
