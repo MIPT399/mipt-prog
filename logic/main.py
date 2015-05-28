@@ -140,7 +140,7 @@ def main(args):
 						answer(listener, getField())
 						newPlayerTurn = False
 				elif method == 'wait':
-						index = [x.name for x in Players].index(args.owner)
+						index = [x.listener for x in Players].index(listener)
 						Players[index].waiting = True
 						newPlayerTurn = False						
 				elif method != 'join' and len(Players) < maxPlayersCount:
