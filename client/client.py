@@ -3,7 +3,7 @@ import json
 import sys
 from structures.game import AttrDict 
 
-__all__ = ["method", "getField", "stop", "close", "init", "stop", "moveUnit", "attack"]
+__all__ = ["method", "getField", "stop", "close", "init", "stop", "moveUnit", "attack", "join", "wait"]
 
 NAME, HOST, PORT = "", "localhost", 1234
 
