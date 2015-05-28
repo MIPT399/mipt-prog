@@ -23,7 +23,7 @@ def genNewBase():
 		return
 
 
-def join(str):
+def join(str, listener):
 		if str in [player.name for player in Players]:
 				return Response(result = False, cause = 'This nickname is busy now, try another one')
 		if len(Players) >= maxPlayersCount:
@@ -36,7 +36,7 @@ def join(str):
 		nPos = Point(x = randint(-maxCoordinate, maxCoordinate), y = randint(-maxCoordinate, maxCoordinate))
 		while nPos in [player.base['position'] for player in Players]:
 				nPos = Point(x = randint(-maxCoordinate, maxCoordinate), y = randint(-maxCoordinate, maxCoordinate))
-		nPlayer = Player(name=str, base={"health" : maxBaseHealth, "position" : nPos}, units=[])
+		nPlayer = Player(name=str, base={"health" : maxBaseHealth, "position" : nPos}, units=[], listener=listener, waiting=False)
 		Players.append(nPlayer)
 		return Response(result = True)
 
@@ -88,7 +88,6 @@ def disconnect(action):
 		Players[index].units = []
 		return Response(result = True)
 
-
 def makeNewTurn():
 		for i in range(len(Players)):
 				if Players[i].base["health"] > 0:
@@ -114,32 +113,46 @@ def main(args):
 		#event loop
 		while True:
 				method, args, listener = EventQueue.get()
+				newPlayerTurn = True
 				if method == 'stop':
 						stopAll()
 						break
 				elif method != 'join' and len(Players) < maxPlayersCount:
 						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'join':
-						answer(listener, join(args))
+						answer(listener, join(args, listener))
+				elif method == 'disconnect':
+						answer(listener, disconnect(args))
 				elif method == 'getField':
 						answer(listener, getField())
 						currentPlayer -= 1
+						newPlayerTurn = False
+				elif method == 'wait':
+						index = [x.name for x in Players].index(args.owner)
+						Players[index].waiting = True
+						currentPlayer -= 1
+						newPlayerTurn = False						
 				elif Players[currentPlayer].name != args.owner:
 						answer(listener, Response(result = False, cause = 'Please wait for your turn'))
 						currentPlayer -= 1
+						newPlayerTurn = False
 				elif method == 'moveUnit':
 						answer(listener, moveUnit(args))
 				elif method == 'attack':
 						answer(listener, attack(args))
 				else:
 						print('Unknown method')
+
 				if len(Players) == maxPlayersCount:
-					currentPlayer = (currentPlayer + 1) % maxPlayersCount
-					while Players[currentPlayer].base["health"] <= 0 and len(Players[currentPlayer].units) == 0:
 						currentPlayer = (currentPlayer + 1) % maxPlayersCount
+						while Players[currentPlayer].base["health"] <= 0 and len(Players[currentPlayer].units) == 0:
+								currentPlayer = (currentPlayer + 1) % maxPlayersCount
 				else:
-					currentPlayer = len(Players)
+						currentPlayer = len(Players)
 				if currentPlayer == len(Players) == maxPlayersCount:
 						currentPlayer = 0
 						makeNewTurn()
 
+				if newPlayerTurn and Players[currentPlayer].waiting:
+						answer(Players[currentPlayer].listener, Response(result = True)
+						Players[currentPlayer].waiting = False
