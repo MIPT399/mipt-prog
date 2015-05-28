@@ -137,7 +137,8 @@ def main(args):
 						answer(listener, join(args, listener))
 						areAll = (len(Players) == maxPlayersCount)
 						if (not wereAll) and areAll:
-								answer(Players[0].listener, Response(result = True))
+								if Players[0].waiting:
+									answer(Players[0].listener, Response(result = True))
 								makeNewTurn()
 				elif method == 'disconnect':
 						answer(listener, disconnect(args))
