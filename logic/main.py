@@ -114,6 +114,7 @@ def main(args):
 		#event loop
 		while True:
 				method, args, listener = EventQueue.get()
+				print(method, args)
 				if method == 'stop':
 						stopAll()
 						break
