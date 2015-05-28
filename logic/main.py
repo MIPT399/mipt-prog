@@ -86,18 +86,29 @@ def disconnect(action):
 				return Response(result = False, cause = 'You do not exist')
 		index = [player.name for player in Players].index(name)
 		del Players[index]
-		# maxPlayersCount -= 1
+		maxPlayersCount -= 1
 		return Response(result = True)
 
 def makeNewTurn():
 		for i in range(len(Players)):
-				if Players[i].base["health"] > 0:
+				if Players[i].base["health"] <= 0:
+					stop(Players[i].listeners, "Go to Hell")
+					del Players[i]
+					maxPlayersCount -= 1
+				else: 
 						uniqueId = 0
 						ids = [unit.id for unit in Players[i].units]
 						while str(uniqueId) in ids:
 								uniqueId += 1
 						Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
-
+						Players[i].base["health"] -= 1
+		if len(Players) == 0:
+			maxPlayersCount = 2
+		elif len(Players) == 1:
+			stop(Players[0].listeners, "You won")
+			del Players[0]
+			maxPlayersCount = 2
+				
 
 def answer(to, obj):
 	children_lock.acquire()
