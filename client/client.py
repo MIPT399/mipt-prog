@@ -7,8 +7,11 @@ __all__ = ["method", "getField", "stop", "close", "init", "stop", "moveUnit", "a
 NAME, HOST, PORT = "", "localhost", 1234
 
 
-def init():
+def init(host="localhost", port=1234):
 	global sock
+	global HOST
+	global PORT
+	HOST, PORT = host, port
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect((HOST, PORT))
 

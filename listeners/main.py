@@ -31,6 +31,8 @@ def stop(listener, message):
     try:
         status[listener] = message
         children[listener].terminate()
+        del children[listener]
+        del pipes[listener]
     finally:
         children_lock.release()
 
