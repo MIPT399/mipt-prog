@@ -159,5 +159,5 @@ def main(args):
 						makeNewTurn()
 
 				if newPlayerTurn and Players[currentPlayer].waiting:
-						answer(Players[currentPlayer].listener, Response(result = True)
+						answer(Players[currentPlayer].listener, Response(result = True))
 						Players[currentPlayer].waiting = False
