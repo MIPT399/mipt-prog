@@ -14,10 +14,16 @@ from json import loads
 from structures.game import AttrDict
 
 
+
 def main(equeue, name, cpipe):
     def getField():
         equeue.put(('getField', '', name))
         return cpipe.recv()
+
+    """
+    def getField():
+        return [AttrDict(base=AttrDict(position=AttrDict(x=0, y=3)), units=[AttrDict(position=AttrDict(x=20, y=40))])]
+    """
 
     max_cnt = 300
     fs = 300
@@ -50,7 +56,7 @@ def main(equeue, name, cpipe):
         cnt = 0
 
         def add(xs, ys, col, rad):
-            global x, y, c, r, cnt
+            nonlocal cnt
             x[cnt] = xs
             y[cnt] = ys
             c[cnt] = col
@@ -58,13 +64,16 @@ def main(equeue, name, cpipe):
             cnt += 1
 
         field = getField()
-
-        for i in range(len(field)):
-            cur = field[i]
+        print(field)
+        i = 0
+        for cur in field:
+            print(cur)
             add(cur.base.position.x, cur.base.position.y, colors[i], 10)
 
             for u in cur.units:
                 add(u.position.x, u.position.y, colors[i], 3)
+
+            i += 1
 
 
         ds.data['x'] = x
@@ -72,4 +81,4 @@ def main(equeue, name, cpipe):
         ds.data['radius'] = r
         ds.data['fill_color'] = c
         cursession().store_objects(ds)
-        time.sleep(0.3)
+        time.sleep(1)
