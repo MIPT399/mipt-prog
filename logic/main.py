@@ -122,7 +122,8 @@ def makeNewTurn():
         ids = [unit.id for unit in Players[i].units]
         while str(uniqueId) in ids:
             uniqueId += 1
-        Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
+        if len(Players[i].units) < 10:
+            Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
         Players[i].base["health"] -= 1
 
 def answer(to, obj):
@@ -154,7 +155,7 @@ def main(args):
                                 gameRunning = True
                                 makeNewTurn()
                 elif method == 'disconnect':
-                        answer(listener, disconnect(args))
+                        disconnect(args)
                 elif method == 'getField':
                         answer(listener, getField())
                         newPlayerTurn = False

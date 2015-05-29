@@ -19,13 +19,16 @@ def init(host="localhost", port=1234):
         sock.connect((HOST, PORT))
 
 def send(data):
+        sock.sendall(bytes(data + "\n", "utf-8"))
+        #print("sent {}".format(data))
+        received = str(sock.recv(10240), "utf-8")
         try:
-                sock.sendall(bytes(data + "\n", "utf-8"))
-                #print("sent {}".format(data))
-                received = str(sock.recv(10240), "utf-8")
-                return received
+            json.loads(received)
         except:
-                print("Something really bad has happened", file = sys.stderr)
+            print(received)
+            exit(0)
+        return received
+
 
 def join(name):
         global NAME
