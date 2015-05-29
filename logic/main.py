@@ -114,11 +114,13 @@ def makeNewTurn():
 			maxPlayersCount = 2
 		elif len(Players) == 1:
 			stop(Players[0].listener, "You won")
+			print(len(Players), 'winner')
 			del Players[0]
 			maxPlayersCount = 2
 				
 
 def answer(to, obj):
+	print(obj, 'answered to ', to)
 	children_lock.acquire()
 	try:
 		pipes[to].send(obj)
@@ -136,14 +138,13 @@ def main(args):
 		#event loop
 		while True:
 				method, args, listener = EventQueue.get()
-				newPlayerTurn = True
+				newPlayerTurn = False
 				print(method, args)
 				if method == 'join':
 						wereAll = (len(Players) == maxPlayersCount)
 						answer(listener, join(args, listener))
 						areAll = (len(Players) == maxPlayersCount)
 						if (not wereAll) and areAll:
-								answer(Players[0].listener, Response(result = True))
 								makeNewTurn()
 				elif method == 'disconnect':
 						answer(listener, disconnect(args))
@@ -152,8 +153,9 @@ def main(args):
 						newPlayerTurn = False
 				elif method == 'wait':
 						index = [x.listener for x in Players].index(listener)
-						Players[index].waiting = True
-						newPlayerTurn = False						
+						if index != currentPlayer:
+							Players[index].waiting = True
+							newPlayerTurn = False						
 				elif method != 'join' and len(Players) < maxPlayersCount:
 						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'moveUnit':
@@ -161,11 +163,13 @@ def main(args):
 							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
 						else:
 							answer(listener, moveUnit(args))
+						newPlayerTurn = True
 				elif method == 'attack':
 						if Players[currentPlayer].name != args.owner:
 							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
 						else:
 							answer(listener, attack(args))
+						newPlayerTurn = True
 				else:
 						print('Unknown method')
 
@@ -178,7 +182,6 @@ def main(args):
 									zero = True
 						if zero:
 							makeNewTurn()
-						print(currentPlayer, len(Players), '-')
 						if Players[currentPlayer].waiting:
 								answer(Players[currentPlayer].listener, Response(result = True))
 								Players[currentPlayer].waiting = False
