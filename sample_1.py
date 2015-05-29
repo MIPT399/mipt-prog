@@ -10,7 +10,7 @@ sampleAction = {"id" : x[0].units[0].id, "position" : {"x" : x[0].units[0].posit
 print(client.moveUnit(sampleAction))
 print(client.wait())
 
-for i in range(20):
+while True:
 	y = client.getField()
 	if_gone = 0
 	#print(i, len(y[0].units))
@@ -36,7 +36,7 @@ for i in range(20):
 			print(client.attack(sA_attack))
 			if_gone = 1
 			break
-	s = random.randint(1, 4)
+	s = random.choice([3, 2])
 	if if_gone == 0:
 		if s == 1:
 			sA_move = {"id" : y[0].units[t].id, "position" : {"x" :  y[0].units[t].position.x + 1, "y" :  y[0].units[t].position.y}}

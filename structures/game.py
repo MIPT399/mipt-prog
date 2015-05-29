@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from json import loads, dumps
 
-__all__ = ['Point', 'Unit', 'Player', 'Action', 'Response', 'load']
+__all__ = ['Point', 'Unit', 'Player', 'Action', 'Response', 'load', 'AttrDict']
 
 
 class AttrDict(dict):

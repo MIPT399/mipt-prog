@@ -28,8 +28,8 @@ def main(equeue, name, cpipe):
     max_cnt = 300
     fs = 300
     out = 500
-    base_radius = 10
-    unit_radius = 3
+    base_radius = 1
+    unit_radius = 0.5
 
     colors = ["red", "blue", "green", "magenta"]
 
@@ -53,25 +53,28 @@ def main(equeue, name, cpipe):
         y = [out for i in range(max_cnt)]
         c = ["white" for i in range(max_cnt)]
         r = [1 for i in range(max_cnt)]
+        b = ["white" for i in range(max_cnt)]
         cnt = 0
 
-        def add(xs, ys, col, rad):
+        def add(xs, ys, col, rad, bound="white"):
             nonlocal cnt
             x[cnt] = xs
             y[cnt] = ys
             c[cnt] = col
             r[cnt] = rad
+            b[cnt] = bound
             cnt += 1
 
+
         field = getField()
-        print(field)
+        print("I'm visualizer!!!!!\n And I've got\n", field)
         i = 0
         for cur in field:
             print(cur)
-            add(cur.base.position.x, cur.base.position.y, colors[i], 10)
+            add(cur.base.position.x, cur.base.position.y, colors[i], base_radius, "black")
 
             for u in cur.units:
-                add(u.position.x, u.position.y, colors[i], 3)
+                add(u.position.x, u.position.y, colors[i], unit_radius)
 
             i += 1
 
@@ -80,5 +83,6 @@ def main(equeue, name, cpipe):
         ds.data['y'] = y
         ds.data['radius'] = r
         ds.data['fill_color'] = c
+        ds.data['line_color'] = b
         cursession().store_objects(ds)
-        time.sleep(1)
+        #time.sleep(0.3)

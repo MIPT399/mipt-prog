@@ -1,5 +1,6 @@
 from structures.game import *
-import multiprocessing as mp 
+import multiprocessing as mp
+import time
 
 EventQueue = mp.Queue()
 ARGV = []
@@ -36,7 +37,7 @@ def join(str, listener):
         nPos = Point(x = randint(-maxCoordinate, maxCoordinate), y = randint(-maxCoordinate, maxCoordinate))
         while nPos in [player.base['position'] for player in Players]:
                 nPos = Point(x = randint(-maxCoordinate, maxCoordinate), y = randint(-maxCoordinate, maxCoordinate))
-        nPlayer = Player(name=str, base={"health" : maxBaseHealth, "position" : nPos}, units=[], listener=listener, waiting=False)
+        nPlayer = Player(name=str, base=AttrDict(health=maxBaseHealth, position=nPos), units=[], listener=listener, waiting=False)
         Players.append(nPlayer)
         return Response(result = True)
 
@@ -124,7 +125,8 @@ def makeNewTurn():
             uniqueId += 1
         if len(Players[i].units) < 10:
             Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
-        Players[i].base["health"] -= 1
+        #Players[i].base["health"] -= 1
+    time.sleep(0.5)
 
 def answer(to, obj):
     print(obj, 'answered to ', to)
