@@ -93,18 +93,22 @@ def disconnect(action):
 
 def sanitize():
     for player in Players:
+        todel = []
         for i in range(len(player.units)):
             if player.units[i].health <= 0:
-                player.units[i]
+                todel.append(i)
+        for i in reversed(todel):
+            del player.units[i]
 
 
 def checkPlayers():
+        sanitize()
         global maxPlayersCount, Players, currentPlayer
         toDelete, delta = [], 0
         for i in range(len(Players)):
                 if Players[i].base["health"] <= 0:  
                     stop(Players[i].listener, "Go to Hell")
-                    toDelete = [i] + toDelete
+                    toDelete.append(i)
                     maxPlayersCount -= 1
                     if currentPlayer > i:
                         delta += 1
