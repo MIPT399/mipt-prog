@@ -7,7 +7,7 @@ import random
 
 import numpy as np
 
-from bokeh.plotting import cursession, figure, show, output_server
+from bokeh.plotting import cursession, figure, show, output_server, Session
 
 from json import loads
 
@@ -35,7 +35,8 @@ def main(equeue, name, cpipe):
 
     x, y = [out for i in range(max_cnt)], [out for i in range(max_cnt)]
 
-    output_server("circle_animate")
+    output_server("circ", clear=True)
+
 
     p = figure(x_range=[-fs, fs], y_range=[-fs, fs])
 

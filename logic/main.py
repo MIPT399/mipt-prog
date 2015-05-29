@@ -9,12 +9,12 @@ from listeners.main import loadAll, stop, pipes, children_lock
 
 __all__ = ['main', 'EventQueue', 'ARGV']
 
-maxPlayersCount = 2
+maxPlayersCount = 4
 maxNicknameLength = 20
 maxBaseHealth = 100
 maxUnitHealth = 10
 maxCoordinate = 20
-attackValue = 2
+attackValue = 2000
 Players = []
 
 currentPlayer = 0
@@ -131,7 +131,7 @@ def makeNewTurn():
         ids = [unit.id for unit in Players[i].units]
         while str(uniqueId) in ids:
             uniqueId += 1
-        if len(Players[i].units) < 10:
+        if len(Players[i].units) < 10 and Players[i].base.health > 0:
             Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
         #Players[i].base["health"] -= 1
     time.sleep(0.5)
