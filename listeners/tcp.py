@@ -73,7 +73,6 @@ class GameListener:
                 try:
                     if name in status:
                         self.wfile.write(status[name].encode())
-                    if name in status:
                         del status[name]
                     del pipes[name]
                 finally:
