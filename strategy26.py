@@ -43,10 +43,11 @@ while True:
             me = x
 
     if me.units == []:
+        print(client.wait())
         continue
 
-    t = random.choice(me.units)
-    pos = Point(t.position.x, t.position.y)
+    cur = random.choice(me.units)
+    pos = Point(cur.position.x, cur.position.y)
     used = False
 
     best_to = dirs[0]
@@ -61,12 +62,13 @@ while True:
                         best_dist = dist(pos + to, u_pos)
                         best_to = to
                     if pos + to == u_pos and not used:
-                        query = cook(t.id, u.position.x, u.position.y)
+                        query = cook(cur.id, u_pos.x, u_pos.y)
                         print(client.attack(query))
                         used = True
 
     if not used:
-        query = cook(t.id, best_to.x, best_to.y)
+        to = pos + best_to
+        query = cook(cur.id, to.x, to.y)
         print(client.moveUnit(query))
 
     print(client.wait())

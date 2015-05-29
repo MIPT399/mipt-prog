@@ -14,7 +14,7 @@ maxNicknameLength = 20
 maxBaseHealth = 100
 maxUnitHealth = 10
 maxCoordinate = 20
-attackValue = 1
+attackValue = 2
 Players = []
 
 currentPlayer = 0
@@ -65,19 +65,17 @@ def attack(action):
                 return Response(result = False, cause = 'You should first join with this nickname')
         index = [player.name for player in Players].index(action.owner)
         player = Players[index]
-        if action.id not in player.units:
-                return Response(result = False, cause = 'There is no alive unit with this id')
+        #if action.id not in player.units:
+        #        return Response(result = False, cause = 'There is no alive unit with this id')
         unitIndex = [unit.id for unit in player.units].index(action.id)
         if abs(action.position.x - player.units[unitIndex].position.x) + abs(action.position.y - player.units[unitIndex].position.y) > 1:
                 return Response(result = False, cause = 'This cell is not available')
-        for i in range(len(Players)):
-                for j in range(len(Players[i].units)):
-                        if Players[i].units[j].id == action.id:
-                                Players[i].units[j].health -= attackValue
-                                if (Players[i].units[j].health <= 0):
-                                        del Players[i].units[j]
-                if Players[i].base["position"] == action.position:
-                        Players[i].base["health"] -= attackValue
+        for pl in Players:
+                for unit in pl.units:
+                        if unit.position == action.position:
+                                unit.health -= attackValue
+                if pl.base.position == action.position:
+                    pl.base.health -= attackValue
         return Response(result = True)
 
 def disconnect(action):
@@ -93,6 +91,12 @@ def disconnect(action):
             maxPlayersCount -= 1
         return Response(result = True)
 
+def sanitize():
+    for player in Players:
+        for i in range(len(player.units)):
+            if player.units[i].health <= 0:
+                player.units[i]
+
 
 def checkPlayers():
         global maxPlayersCount, Players, currentPlayer
@@ -106,7 +110,7 @@ def checkPlayers():
                         delta += 1
                     
         currentPlayer -= delta
-        for i in toDelete:
+        for i in reversed(toDelete):
                 del Players[i]
         if len(Players) == 0:
             maxPlayersCount = 2
