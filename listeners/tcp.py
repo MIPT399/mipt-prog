@@ -75,7 +75,7 @@ class GameListener:
                         self.wfile.write(status[name].encode())
                     if name in status:
                         del status[name]
-                    del pipes[name]
+                    del pipes[name], children[name]
                 finally:
                     children_lock.release()
         port = 1234
