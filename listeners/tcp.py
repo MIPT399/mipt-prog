@@ -41,6 +41,7 @@ def process_main(handler, EventQueue, self, cpipe):
                     continue
                 EventQueue.put((method, arg, self))
                 answer = cpipe.recv()
+                print('ansswer', answer)
                 handler.wfile.write((dumps(answer) + '\n').encode())
             else:
                 handler.wfile.write('unknown method\n'.encode())
@@ -74,7 +75,7 @@ class GameListener:
                     if name in status:
                         self.wfile.write(status[name].encode())
                         del status[name]
-                    del pipes[name]
+                    del pipes[name], children[name]
                 finally:
                     children_lock.release()
         port = 1234

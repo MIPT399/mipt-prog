@@ -91,13 +91,15 @@ def disconnect(action):
 		return Response(result = True)
 
 def makeNewTurn():
-		global maxPlayersCount, Players
-		toDelete = []
+		global maxPlayersCount, Players, currentPlayer
+		toDelete, delta = [], 0
 		for i in range(len(Players)):
 				if Players[i].base["health"] <= 0:	
 					stop(Players[i].listener, "Go to Hell")
 					toDelete = [i] + toDelete
 					maxPlayersCount -= 1
+					if currentPlayer > i:
+						delta += 1
 				else: 
 						uniqueId = 0
 						ids = [unit.id for unit in Players[i].units]
@@ -105,17 +107,20 @@ def makeNewTurn():
 								uniqueId += 1
 						Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
 						Players[i].base["health"] -= 1
+		currentPlayer -= delta
 		for i in toDelete:
 				del Players[i]
 		if len(Players) == 0:
 			maxPlayersCount = 2
 		elif len(Players) == 1:
 			stop(Players[0].listener, "You won")
+			print(len(Players), 'winner')
 			del Players[0]
 			maxPlayersCount = 2
 				
 
 def answer(to, obj):
+	print(obj, 'answered to ', to)
 	children_lock.acquire()
 	try:
 		pipes[to].send(obj)
@@ -133,27 +138,24 @@ def main(args):
 		#event loop
 		while True:
 				method, args, listener = EventQueue.get()
-				newPlayerTurn = True
+				newPlayerTurn = False
 				print(method, args)
 				if method == 'join':
 						wereAll = (len(Players) == maxPlayersCount)
 						answer(listener, join(args, listener))
 						areAll = (len(Players) == maxPlayersCount)
 						if (not wereAll) and areAll:
-								if Players[0].waiting:
-									answer(Players[0].listener, Response(result = True))
 								makeNewTurn()
 				elif method == 'disconnect':
-						disconnect(args)
+						answer(listener, disconnect(args))
 				elif method == 'getField':
 						answer(listener, getField())
 						newPlayerTurn = False
 				elif method == 'wait':
 						index = [x.listener for x in Players].index(listener)
-						if (currentPlayer == index):
-								answer(listener, Response(result = False, cause = 'It is your turn'))
-						Players[index].waiting = True
-						newPlayerTurn = False
+						if index != currentPlayer:
+							Players[index].waiting = True
+							newPlayerTurn = False						
 				elif method != 'join' and len(Players) < maxPlayersCount:
 						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'moveUnit':
@@ -161,21 +163,25 @@ def main(args):
 							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
 						else:
 							answer(listener, moveUnit(args))
+						newPlayerTurn = True
 				elif method == 'attack':
 						if Players[currentPlayer].name != args.owner:
 							answer(listener, Response(result = False, cause = 'Please wait for your turn'))
 						else:
 							answer(listener, attack(args))
+						newPlayerTurn = True
 				else:
 						print('Unknown method')
 
 				if newPlayerTurn and len(Players) > 0:
 						currentPlayer = (currentPlayer + 1) % len(Players)
+						zero = currentPlayer == 0
 						while Players[currentPlayer].base["health"] <= 0 and len(Players[currentPlayer].units) == 0:
 								currentPlayer = (currentPlayer + 1) % len(Players)
 								if currentPlayer == 0:
-										makeNewTurn()
-										print('----------------')
+									zero = True
+						if zero:
+							makeNewTurn()
 						if Players[currentPlayer].waiting:
 								answer(Players[currentPlayer].listener, Response(result = True))
 								Players[currentPlayer].waiting = False
