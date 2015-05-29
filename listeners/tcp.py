@@ -41,7 +41,6 @@ def process_main(handler, EventQueue, self, cpipe):
                     continue
                 EventQueue.put((method, arg, self))
                 answer = cpipe.recv()
-                print('ansswer', answer)
                 handler.wfile.write((dumps(answer) + '\n').encode())
             else:
                 handler.wfile.write('unknown method\n'.encode())

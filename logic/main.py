@@ -80,17 +80,20 @@ def attack(action):
 		return Response(result = True)
 
 def disconnect(action):
-		global maxPlayersCount
+		global maxPlayersCount, currentPlayer
 		name = str(action)
 		if name not in [player.name for player in Players]:
 				return Response(result = False, cause = 'You do not exist')
 		index = [player.name for player in Players].index(name)
 		del Players[index]
+		if currentPlayer >= len(Players):
+			currentPlayer = 0
 		if len(Players) == maxPlayersCount: 
 			maxPlayersCount -= 1
 		return Response(result = True)
 
-def makeNewTurn():
+
+def checkPlayers():
 		global maxPlayersCount, Players, currentPlayer
 		toDelete, delta = [], 0
 		for i in range(len(Players)):
@@ -100,13 +103,7 @@ def makeNewTurn():
 					maxPlayersCount -= 1
 					if currentPlayer > i:
 						delta += 1
-				else: 
-						uniqueId = 0
-						ids = [unit.id for unit in Players[i].units]
-						while str(uniqueId) in ids:
-								uniqueId += 1
-						Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
-						Players[i].base["health"] -= 1
+					
 		currentPlayer -= delta
 		for i in toDelete:
 				del Players[i]
@@ -117,7 +114,16 @@ def makeNewTurn():
 			print(len(Players), 'winner')
 			del Players[0]
 			maxPlayersCount = 2
-				
+
+def makeNewTurn():
+	checkPlayers()
+	for i in range(len(Players)):
+		uniqueId = 0
+		ids = [unit.id for unit in Players[i].units]
+		while str(uniqueId) in ids:
+			uniqueId += 1
+		Players[i].units.append(Unit(id = str(uniqueId), position = Players[i].base["position"], health = maxUnitHealth))
+		Players[i].base["health"] -= 1
 
 def answer(to, obj):
 	print(obj, 'answered to ', to)
@@ -127,7 +133,6 @@ def answer(to, obj):
 	finally:
 		children_lock.release()
 
-
 def main(args):
 		global currentPlayer, ARGV, maxPlayersCount
 		ARGV = args
@@ -135,6 +140,7 @@ def main(args):
 			if arg.startswith('--players='):
 				maxPlayersCount = int(arg[len('--players='):])
 		loadAll()
+		gameRunning = False
 		#event loop
 		while True:
 				method, args, listener = EventQueue.get()
@@ -145,6 +151,7 @@ def main(args):
 						answer(listener, join(args, listener))
 						areAll = (len(Players) == maxPlayersCount)
 						if (not wereAll) and areAll:
+								gameRunning = True
 								makeNewTurn()
 				elif method == 'disconnect':
 						answer(listener, disconnect(args))
@@ -153,10 +160,12 @@ def main(args):
 						newPlayerTurn = False
 				elif method == 'wait':
 						index = [x.listener for x in Players].index(listener)
-						if index != currentPlayer:
+						if not gameRunning or index != currentPlayer:
 							Players[index].waiting = True
-							newPlayerTurn = False						
-				elif method != 'join' and len(Players) < maxPlayersCount:
+							newPlayerTurn = False
+						else:
+							answer(listener, Response(result=True))					
+				elif method != 'join' and not gameRunning:
 						answer(listener, Response(result = False, cause = 'It is necessary to wait for other players'))
 				elif method == 'moveUnit':
 						if Players[currentPlayer].name != args.owner:
@@ -172,7 +181,14 @@ def main(args):
 						newPlayerTurn = True
 				else:
 						print('Unknown method')
-
+				if gameRunning:
+					checkPlayers()
+				if len(Players) == 0:
+					gameRunning = False
+				print('currentPlayer-=--------------------', currentPlayer, ' ', len(Players))
+				if gameRunning and Players[currentPlayer].waiting:
+					answer(Players[currentPlayer].listener, Response(result = True))
+					Players[currentPlayer].waiting = False
 				if newPlayerTurn and len(Players) > 0:
 						currentPlayer = (currentPlayer + 1) % len(Players)
 						zero = currentPlayer == 0
@@ -182,6 +198,3 @@ def main(args):
 									zero = True
 						if zero:
 							makeNewTurn()
-						if Players[currentPlayer].waiting:
-								answer(Players[currentPlayer].listener, Response(result = True))
-								Players[currentPlayer].waiting = False
