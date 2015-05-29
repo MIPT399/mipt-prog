@@ -22,7 +22,7 @@ def send(data):
         try:
                 sock.sendall(bytes(data + "\n", "utf-8"))
                 #print("sent {}".format(data))
-                received = str(sock.recv(1024), "utf-8")
+                received = str(sock.recv(10240), "utf-8")
                 return received
         except:
                 print("Something really bad has happened", file = sys.stderr)
