@@ -16,7 +16,7 @@ class Visual:
             cpipe, ppipe = mp.Pipe()
             name = 'Visual'
             pipes[name] = ppipe
-            prc = mp.Process(target=visualizer.main, args=(equeue, name, cpipe))
+            prc = mp.Process(target=visualizer.main, args=(self.EventQueue, name, cpipe))
             children[name] = prc
         finally:
             children_lock.release()
